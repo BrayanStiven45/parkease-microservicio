@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 import dotenv from "dotenv";
 
@@ -13,7 +13,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
-console.log(process.env.NEXT_PUBLIC_FIREBASE_API_KEY)
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -51,15 +50,5 @@ export async function createUser(email: string, password: string, additionalData
     uid: user.uid,
     email: user.email,
     ...additionalData,
-  };
-}
-
-export async function signInUser(email: string, password: string) {
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
-  
-  return {
-    uid: user.uid,
-    email: user.email,
   };
 }

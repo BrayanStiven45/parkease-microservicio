@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import authRouter from "./routes/authRoutes";
+import signUpRouter from "./routes/signUpRoutes";
 
 const app = express();
 
@@ -13,7 +13,7 @@ app.use((req, res, next) => {
 });
 
 
-app.use("/auth", authRouter);
+app.use("/auth", signUpRouter);
 
 
 export default app;

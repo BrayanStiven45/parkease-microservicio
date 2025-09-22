@@ -41,24 +41,27 @@ const proxy = (target: string, pathRewrite: string) => async (req: express.Reque
 };
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    services: {
-      userService: process.env.USER_SERVICE_URL || 'http://localhost:4000',
-      parkingService: process.env.PARKING_SERVICE_URL || 'http://localhost:3003'
-    }
-  });
-});
+// app.get('/health', (req, res) => {
+//   res.status(200).json({ 
+//     status: 'OK', 
+//     timestamp: new Date().toISOString(),
+//     services: {
+//       userService: process.env.USER_SERVICE_URL || 'http://localhost:4000',
+//       parkingService: process.env.PARKING_SERVICE_URL || 'http://localhost:3003'
+//     }
+//   });
+// });
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Auth Service - Simple Proxy
-app.use('/api/auth', proxy('http://localhost:4000', '/auth'));
+// Login Service - Simple Proxy
+app.use('/api/auth/login', proxy('http://localhost:4000', '/auth'));
+
+// Signup Service - Simple Proxy
+app.use('/api/auth/signup', proxy('http://localhost:4001', '/auth'));
 
 // Examples for other services:
 // app.use('/api/parking', proxy('http://localhost:3003', '/api'));
@@ -86,6 +89,6 @@ app.listen(PORT, () => {
   console.log(`🚀 API Gateway running on port ${PORT}`);
   console.log(`📍 Health check available at http://localhost:${PORT}/health`);
   console.log(`🔗 Proxying to services:`);
-  console.log(`   - User Service: ${process.env.USER_SERVICE_URL || 'http://localhost:4000'}`);
-  console.log(`   - Parking Service: ${process.env.PARKING_SERVICE_URL || 'http://localhost:3003'}`);
+  console.log(`   - Servicio de login: ${process.env.USER_SERVICE_URL || 'http://localhost:4000'}`);
+  console.log(`   - Servicio de registro: ${process.env.PARKING_SERVICE_URL || 'http://localhost:4001'}`);
 });

@@ -11,5 +11,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Servicio de  ${PORT}`);
+  console.log(`Servicio de inicio de sesion corriendo en el puerto ${PORT}`);
 });
