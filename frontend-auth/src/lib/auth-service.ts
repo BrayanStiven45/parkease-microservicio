@@ -44,7 +44,6 @@ class AuthService {
   }
 
   async signup(userData: SignupRequest): Promise<AuthResponse> {
-
     const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: 'POST',
       headers: {
@@ -52,7 +51,6 @@ class AuthService {
       },
       body: JSON.stringify(userData),
     });
-
 
     if (!response.ok) {
       const error = await response.json();
