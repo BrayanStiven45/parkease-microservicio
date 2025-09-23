@@ -6,43 +6,64 @@ export interface ParkingRecord {
   status: 'active' | 'completed';
   totalCost?: number;
   userId: string;
+  branchId: string;
 }
 
 export interface PaymentRequest {
   recordId: string;
   userId: string;
   plate: string;
-  pointsToRedeem?: number;
   hourlyCost: number;
   paymentInitiatedAt: string | Date;
+  paymentMethod: 'cash' | 'card' | 'digital_wallet';
+  discountAmount?: number; // Descuento aplicado desde servicio externo
 }
 
 export interface PaymentCalculation {
   hoursParked: number;
-  initialCost: number;
-  pointsDiscount: number;
+  baseAmount: number;
+  discountAmount: number;
+  taxAmount: number;
   finalAmount: number;
-  pointsEarned: number;
+  breakdown: {
+    hourlyRate: number;
+    totalHours: number;
+    subtotal: number;
+    discount: number;
+    tax: number;
+    total: number;
+  };
 }
 
 export interface PaymentResponse {
   success: boolean;
   message: string;
   paymentDetails?: {
+    transactionId: string;
     plate: string;
-    totalCost: number;
-    pointsEarned: number;
-    pointsRedeemed: number;
+    totalAmount: number;
+    paymentMethod: string;
     hoursParked: number;
+    timestamp: string | Date;
   };
   error?: string;
 }
 
-export interface PlateData {
-  puntos: number;
+export interface PaymentTransaction {
+  id: string;
+  recordId: string;
+  userId: string;
+  plate: string;
+  amount: number;
+  paymentMethod: 'cash' | 'card' | 'digital_wallet';
+  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  transactionDate: Date | string;
+  receiptNumber: string;
 }
 
-export interface AvailablePointsResponse {
-  plate: string;
-  availablePoints: number;
+export interface TaxCalculation {
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  total: number;
 }

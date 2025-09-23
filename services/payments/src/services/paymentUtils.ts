@@ -6,8 +6,7 @@ import { differenceInSeconds } from "date-fns";
 export function calculateParkingCost(
   entryTime: string | Date,
   paymentInitiatedAt: string | Date,
-  hourlyCost: number,
-  pointsToRedeem: number = 0
+  hourlyCost: number
 ) {
   const secondsParked = differenceInSeconds(
     new Date(paymentInitiatedAt), 
@@ -15,21 +14,11 @@ export function calculateParkingCost(
   );
   
   const hoursParked = secondsParked / 3600;
-  const initialCost = hoursParked * hourlyCost;
-  
-  // 1 punto = $40 pesos
-  const pointsDiscount = pointsToRedeem * 40;
-  const finalAmount = Math.max(0, initialCost - pointsDiscount);
-  
-  // 10 puntos por hora estacionada
-  const pointsEarned = Math.floor(hoursParked * 10);
+  const totalAmount = hoursParked * hourlyCost;
 
   return {
     hoursParked: parseFloat(hoursParked.toFixed(2)),
-    initialCost: parseFloat(initialCost.toFixed(2)),
-    pointsDiscount: parseFloat(pointsDiscount.toFixed(2)),
-    finalAmount: parseFloat(finalAmount.toFixed(2)),
-    pointsEarned
+    totalAmount: parseFloat(totalAmount.toFixed(2))
   };
 }
 
@@ -51,15 +40,7 @@ export function validatePaymentRequest(data: any): string[] {
   return errors;
 }
 
-/**
- * Valida que los puntos a canjear no excedan los puntos disponibles
- */
-export function validatePointsRedemption(
-  pointsToRedeem: number, 
-  availablePoints: number
-): boolean {
-  return pointsToRedeem <= availablePoints && pointsToRedeem >= 0;
-}
+
 
 /**
  * Formatea la respuesta de error estándar

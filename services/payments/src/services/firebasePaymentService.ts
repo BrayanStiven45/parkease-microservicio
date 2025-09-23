@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, updateDoc, serverTimestamp, increment } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -18,19 +18,19 @@ const db = getFirestore(app);
 
 export { db };
 
-export async function getPlatePoints(plate: string): Promise<number> {
+export async function getParkingRecordForPayment(recordId: string): Promise<any> {
   try {
-    const plateRef = doc(db, 'plates', plate);
-    const plateSnap = await getDoc(plateRef);
+    const recordRef = doc(db, 'parkingRecords', recordId);
+    const recordSnap = await getDoc(recordRef);
     
-    if (plateSnap.exists()) {
-      return plateSnap.data().puntos || 0;
+    if (recordSnap.exists()) {
+      return recordSnap.data();
     }
     
-    return 0;
+    return null;
   } catch (error) {
-    console.error('Error fetching plate points:', error);
-    throw new Error('No se pudieron obtener los puntos de la placa');
+    console.error('Error fetching parking record:', error);
+    throw new Error('No se pudo obtener el registro de estacionamiento');
   }
 }
 
@@ -52,15 +52,32 @@ export async function updateParkingRecord(
   }
 }
 
-export async function updatePlatePoints(plate: string, pointsChange: number): Promise<void> {
+export async function createPaymentTransaction(
+  transactionData: {
+    recordId: string;
+    userId: string;
+    plate: string;
+    amount: number;
+    paymentMethod: string;
+    receiptNumber: string;
+  }
+): Promise<string> {
   try {
-    const plateRef = doc(db, 'plates', plate);
-    await updateDoc(plateRef, {
-      puntos: increment(pointsChange)
+    const transactionId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+    const transactionRef = doc(db, 'paymentTransactions', transactionId);
+    
+    await setDoc(transactionRef, {
+      ...transactionData,
+      id: transactionId,
+      status: 'completed',
+      transactionDate: serverTimestamp(),
+      createdAt: serverTimestamp()
     });
+    
+    return transactionId;
   } catch (error) {
-    console.error('Error updating plate points:', error);
-    throw new Error('No se pudieron actualizar los puntos de la placa');
+    console.error('Error creating payment transaction:', error);
+    throw new Error('No se pudo crear la transacción de pago');
   }
 }
 
@@ -69,20 +86,30 @@ export async function processPaymentTransaction(
   recordId: string,
   plate: string,
   finalAmount: number,
-  pointsEarned: number,
-  pointsRedeemed: number
-): Promise<void> {
+  paymentMethod: string
+): Promise<string> {
   try {
-    // Update parking record
+    // Generate receipt number
+    const receiptNumber = `REC-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+    
+    // Create payment transaction record
+    const transactionId = await createPaymentTransaction({
+      recordId,
+      userId,
+      plate,
+      amount: finalAmount,
+      paymentMethod,
+      receiptNumber
+    });
+
+    // Update parking record with payment info
     await updateParkingRecord(userId, recordId, {
       status: 'completed',
       exitTime: serverTimestamp(),
       totalCost: finalAmount,
     });
 
-    // Update loyalty points (earned points minus redeemed points)
-    const pointsChange = pointsEarned - pointsRedeemed;
-    await updatePlatePoints(plate, pointsChange);
+    return transactionId;
   } catch (error) {
     console.error('Error processing payment transaction:', error);
     throw new Error('Error al procesar la transacción de pago');

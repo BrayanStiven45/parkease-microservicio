@@ -1,20 +1,18 @@
 import { Request, Response } from "express";
 import { 
-  getPlatePoints, 
-  processPaymentTransaction 
+  processPaymentTransaction,
+  getParkingRecordForPayment
 } from "../services/firebasePaymentService";
 import { 
   calculateParkingCost,
   validatePaymentRequest,
-  validatePointsRedemption,
   formatErrorResponse,
   formatSuccessResponse
 } from "../services/paymentUtils";
 import { 
   PaymentRequest, 
   PaymentCalculation, 
-  PaymentResponse,
-  AvailablePointsResponse 
+  PaymentResponse
 } from "../types";
 
 export async function calculatePayment(req: Request, res: Response) {
@@ -22,13 +20,11 @@ export async function calculatePayment(req: Request, res: Response) {
     const { 
       plate, 
       entryTime, 
-      pointsToRedeem = 0, 
       hourlyCost, 
       paymentInitiatedAt 
     }: {
       plate: string;
       entryTime: string;
-      pointsToRedeem?: number;
       hourlyCost: number;
       paymentInitiatedAt: string;
     } = req.body;
@@ -42,8 +38,7 @@ export async function calculatePayment(req: Request, res: Response) {
     const calculation = calculateParkingCost(
       entryTime,
       paymentInitiatedAt,
-      hourlyCost,
-      pointsToRedeem
+      hourlyCost
     );
 
     res.json(calculation);
@@ -55,31 +50,7 @@ export async function calculatePayment(req: Request, res: Response) {
   }
 }
 
-export async function getAvailablePoints(req: Request, res: Response) {
-  try {
-    const { plate } = req.params;
 
-    if (!plate) {
-      return res.status(400).json(formatErrorResponse(
-        "La placa es requerida"
-      ));
-    }
-
-    const availablePoints = await getPlatePoints(plate);
-
-    const response: AvailablePointsResponse = {
-      plate,
-      availablePoints
-    };
-
-    res.json(formatSuccessResponse(response));
-  } catch (error) {
-    console.error("Error fetching available points:", error);
-    res.status(500).json(formatErrorResponse(
-      "Error al obtener los puntos disponibles"
-    ));
-  }
-}
 
 export async function processPayment(req: Request, res: Response) {
   try {
@@ -99,47 +70,37 @@ export async function processPayment(req: Request, res: Response) {
       userId,
       plate,
       entryTime,
-      pointsToRedeem = 0,
       hourlyCost,
-      paymentInitiatedAt
+      paymentInitiatedAt,
+      paymentMethod
     } = paymentData;
-
-    // Get available points for validation
-    const availablePoints = await getPlatePoints(plate);
-    
-    if (!validatePointsRedemption(pointsToRedeem, availablePoints)) {
-      return res.status(400).json(formatErrorResponse(
-        "No tienes suficientes puntos para canjear"
-      ));
-    }
 
     // Calculate payment details
     const costDetails = calculateParkingCost(
       entryTime,
       paymentInitiatedAt,
-      hourlyCost,
-      pointsToRedeem
+      hourlyCost
     );
 
     // Process the payment transaction
-    await processPaymentTransaction(
+    const transactionId = await processPaymentTransaction(
       userId,
       recordId,
       plate,
-      costDetails.finalAmount,
-      costDetails.pointsEarned,
-      pointsToRedeem
+      costDetails.totalAmount,
+      paymentMethod
     );
 
     const response: PaymentResponse = {
       success: true,
       message: `Pago procesado exitosamente para ${plate}`,
       paymentDetails: {
+        transactionId,
         plate,
-        totalCost: costDetails.finalAmount,
-        pointsEarned: costDetails.pointsEarned,
-        pointsRedeemed: pointsToRedeem,
-        hoursParked: costDetails.hoursParked
+        totalAmount: costDetails.totalAmount,
+        paymentMethod,
+        hoursParked: costDetails.hoursParked,
+        timestamp: new Date()
       }
     };
 
