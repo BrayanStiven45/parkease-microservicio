@@ -5,3 +5,8 @@ Content-Type: application/json
     "email": "user@example.com",
     "password": "password123"
 }
+
+### Prueba a parking records
+GET http://localhost:3001/api/parking-records/history/FkmFvrxmXGVpHBTiL1FiAoeuReb2
+Content-Type: application/json
+

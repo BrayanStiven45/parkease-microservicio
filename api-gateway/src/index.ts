@@ -29,9 +29,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Simple proxy helper
-const proxy = (target: string, pathRewrite: string) => async (req: express.Request, res: express.Response) => {
+const proxy = (target: string, path: string, pathRewrite: string) => async (req: express.Request, res: express.Response) => {
   try {
-    const url = `${target}${req.originalUrl.replace(/^\/api\/auth/, pathRewrite)}`;
+    const url = `${target}${req.originalUrl.replace(path, pathRewrite)}`;
     const response = await axios({ method: req.method, url, data: req.body, headers: req.headers, validateStatus: () => true });
     res.status(response.status).json(response.data);
   } catch (error: any) {
@@ -58,10 +58,13 @@ app.use((req, res, next) => {
 });
 
 // Login Service - Simple Proxy
-app.use('/api/auth/login', proxy('http://localhost:4000', '/auth'));
+app.use('/api/auth/login', proxy('http://localhost:4000',/^\/api\/auth/,'/auth'));
 
 // Signup Service - Simple Proxy
-app.use('/api/auth/signup', proxy('http://localhost:4001', '/auth'));
+app.use('/api/auth/signup', proxy('http://localhost:4001','/^\/api\/auth/','/auth'));
+
+// Get all parking records of users
+app.use('/api/parking-records/history/:userId', proxy('http://localhost:4002', /^\/api\/parking-records/,'/parking-records'));
 
 // Examples for other services:
 // app.use('/api/parking', proxy('http://localhost:3003', '/api'));
