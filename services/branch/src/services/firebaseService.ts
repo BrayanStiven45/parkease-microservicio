@@ -121,8 +121,8 @@ export async function getProfile(idToken: string) {
         parkingLotName: userData?.parkingLotName || "",
         hourlyCost: userData?.hourlyCost || 0,
         maxCapacity: userData?.maxCapacity || 0,
-        address: userdata?.address || "",
-        city: userdata?.city || "",
+        address: userData?.address || "",
+        city: userData?.city || "",
       }
     };
     console.log(userDataJson);
