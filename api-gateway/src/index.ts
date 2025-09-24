@@ -75,9 +75,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Signup Service - Simple Proxy
-app.use('/api/auth/signup', proxy('http://localhost:4001',/^\/api\/auth/,'/auth'));
-
 // Login Service - Simple Proxy
 app.use('/api/auth', proxy('http://localhost:4000',/^\/api\/auth/,'/auth'));
 

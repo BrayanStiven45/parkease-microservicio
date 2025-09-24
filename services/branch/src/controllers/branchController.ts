@@ -26,6 +26,7 @@ export class BranchController {
   // Obtiene el perfil del usuario authenticaso
   static async getProfile (req:Request, res:Response) {
     const authHeader = req.headers.authorization;
+    console.log('aquiiiii en getprofile', authHeader)
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "No autorizado" });
     }

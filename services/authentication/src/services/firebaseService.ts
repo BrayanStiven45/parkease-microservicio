@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth";
 import admin from "firebase-admin";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,6 +14,15 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
+
+interface UserAdditionalData {
+  username?: string;
+  parkingLotName?: string;
+  maxCapacity?: number;
+  hourlyCost?: number;
+  address?: string;
+  city?: string;
+}
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -60,4 +70,30 @@ export async function logout(){
   } catch (error) {
     console.error("Error al desloguear:", error);
   }
+}
+
+export async function createUser(email: string, password: string, additionalData?: UserAdditionalData) {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+
+  // Store additional user data in Firestore if provided
+  if (additionalData) {
+    await setDoc(doc(db, 'users', user.uid), {
+      uid: user.uid,
+      username: additionalData.username || '',
+      email: user.email,
+      parkingLotName: additionalData.parkingLotName || '',
+      maxCapacity: additionalData.maxCapacity || 100,
+      hourlyCost: additionalData.hourlyCost || 2.5,
+      address: additionalData.address || '',
+      city: additionalData.city || '',
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  return {
+    uid: user.uid,
+    email: user.email,
+    ...additionalData,
+  };
 }

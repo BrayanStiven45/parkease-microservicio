@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { signInUser, verifyToken, logout } from "../services/firebaseService";
+import { signInUser, verifyToken, logout, createUser } from "../services/firebaseService";
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
@@ -41,3 +41,22 @@ export async function logout(req: Request, res: Response) {
     res.status(500).json({ message: "Error al cerrar sesión", error: (error as Error).message });
   }
 }
+
+export async function signup(req: Request, res: Response) {
+  const { email, password, username, parkingLotName, maxCapacity, hourlyCost, address, city } = req.body;
+  try {
+    const user = await createUser(email, password, { 
+      username, 
+      parkingLotName, 
+      maxCapacity, 
+      hourlyCost, 
+      address, 
+      city 
+    });
+    res.status(201).json({ message: "Usuario Creado Correctamente", user });
+  } catch (err: any) {
+    console.error("Error durante el registro:", err);
+    res.status(400).json({ error: err.message });
+  }
+}
+

@@ -3,7 +3,6 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 import admin from "firebase-admin";
 import dotenv from "dotenv";
-import serviceAccount from "../../serviceAccountKey.json" with {type: 'json'}
 
 dotenv.config();
 
