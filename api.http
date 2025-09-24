@@ -1,12 +1,15 @@
-GET http://localhost:3001/health
+POST http://localhost:3001/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "user@example.com",
-    "password": "password123"
+    "email": "diegoparking@parkease.com",
+    "password": "12345678"
 }
-
-### Prueba a parking records
-GET http://localhost:3001/api/parking-records/history/FkmFvrxmXGVpHBTiL1FiAoeuReb2
+### logout
+POST http://localhost:3001/api/auth/logout
 Content-Type: application/json
+### probar el verify-token
+GET http://localhost:3001/api/branch/profile
+Content-Type: application/json
+authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjA1NTc3MjZmYWIxMjMxZmEyZGNjNTcyMWExMDgzZGE2ODBjNGE3M2YiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGFya2Vhc2UtMjA1ODQiLCJhdWQiOiJwYXJrZWFzZS0yMDU4NCIsImF1dGhfdGltZSI6MTc1ODcxMDg2NSwidXNlcl9pZCI6Ik5hU2E3bXRiYmNNNTdsVXAybjBMYnhIUmpYQTIiLCJzdWIiOiJOYVNhN210YmJjTTU3bFVwMm4wTGJ4SFJqWEEyIiwiaWF0IjoxNzU4NzEwODY1LCJleHAiOjE3NTg3MTQ0NjUsImVtYWlsIjoiZGllZ29wYXJraW5nQHBhcmtlYXNlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJkaWVnb3BhcmtpbmdAcGFya2Vhc2UuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.jjp5EoPeCYmbtIwAbDzDtAXbpg5omyviccplAzL6QuqS7vFRpQ561v9y9YCigo4mk3TnTobeVwGQ8WYhNHE8PtnLEKdVPnOvSm3Clb4KxcqUyDBNqoQwF8W63X8xkZ--DbHvU-u8LAbIlbKSAsXeOT1YT7bf7mUj2uogyIp2t0wbZWXjZjxJ3E7QfNrMPuZ8EyKws3qEEDuUHcYpH5d2pHbmZK7U3Rzzv52vpz2q8y3XJlR_MACjOHybiBbjErNSRj88ngXWlHbV7bqX4FRuW8FzUYQYMWNP5fhc-Bm_zSfvuZiv4yJfLumJqbVI3jqXhOq8205QgWfGR1rNZRyuOg
 

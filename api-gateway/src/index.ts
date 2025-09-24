@@ -32,7 +32,25 @@ app.use(express.urlencoded({ extended: true }));
 const proxy = (target: string, path: string, pathRewrite: string) => async (req: express.Request, res: express.Response) => {
   try {
     const url = `${target}${req.originalUrl.replace(path, pathRewrite)}`;
-    const response = await axios({ method: req.method, url, data: req.body, headers: req.headers, validateStatus: () => true });
+
+    // Solo los headers necesarios
+    const { authorization = '', 'content-type': contentType = 'application/json' } = req.headers;
+
+    // console.log('Proxy URL:', url);
+    // console.log('Proxy Body:', req.body);
+    // console.log('Proxy Authorization:', authorization);
+
+    const response = await axios({
+      method: req.method,
+      url,
+      data: req.body,
+      headers: {
+        Authorization: authorization,
+        'Content-Type': contentType || 'application/json'
+      },
+      validateStatus: () => true
+    });
+
     res.status(response.status).json(response.data);
   } catch (error: any) {
     console.error('Proxy error:', error.message);
@@ -57,11 +75,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Login Service - Simple Proxy
-app.use('/api/auth/login', proxy('http://localhost:4000',/^\/api\/auth/,'/auth'));
-
 // Signup Service - Simple Proxy
-app.use('/api/auth/signup', proxy('http://localhost:4001','/^\/api\/auth/','/auth'));
+app.use('/api/auth/signup', proxy('http://localhost:4001',/^\/api\/auth/,'/auth'));
+
+// Login Service - Simple Proxy
+app.use('/api/auth', proxy('http://localhost:4000',/^\/api\/auth/,'/auth'));
+
+// Get branch auth
+app.use('/api/branch', proxy('http://localhost:4003',/^\/api\/branch/,'/branch'));
 
 // Get all parking records of users
 app.use('/api/parking-records/history/:userId', proxy('http://localhost:4002', /^\/api\/parking-records/,'/parking-records'));
