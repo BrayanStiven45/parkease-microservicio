@@ -7,6 +7,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use(
+  cors({
+    origin: "http://localhost:3000", // tu frontend
+    credentials: true,
+  })
+);
+
 
 app.use("/branch", branchRouter);
 

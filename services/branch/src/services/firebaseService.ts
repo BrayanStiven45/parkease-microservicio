@@ -29,8 +29,8 @@ if (!admin.apps.length) {
   });
 }
 
-const adminAuth = admin.auth();
-const adminDb = admin.firestore();
+export const adminAuth = admin.auth();
+export const adminDb = admin.firestore();
 
 interface UserAdditionalData {
   username?: string;

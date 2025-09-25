@@ -26,6 +26,7 @@ interface UserAdditionalData {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // --- Configuración Admin (firebase-admin) ---
 if (!admin.apps.length) {

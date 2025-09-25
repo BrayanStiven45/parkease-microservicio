@@ -13,7 +13,7 @@ api.interceptors.request.use((config) => {
       // console.log('estoyyy aquiii en api token: ', token)
     if (token) {
       config.headers = config.headers || {}
-      ;(config.headers as any).authorization = `Bearer ${token}`
+      ;(config.headers as any).Authorization = `Bearer ${token}`
     }
   }
   return config
@@ -44,6 +44,15 @@ export const AuthAPI = {
   async getProfile() {
     const { data } = await api.get('/api/branch/profile')
     return data
+  },
+  async updateProfile(data: any) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const res = await axios.put('http://localhost:4003/branch/profile', data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
   },
 }
 

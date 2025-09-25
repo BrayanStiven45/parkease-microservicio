@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getProfile } from "../services/firebaseService";
+import { getProfile, update, adminAuth } from "../services/firebaseService";
 
 
 export class BranchController {
@@ -38,6 +38,27 @@ export class BranchController {
     } catch (err: any) {
       console.error("Error al obtener el perfil:", err);
       res.status(401).json({ error: "Token inválido o expirado" });
+    }
+  }
+
+  // Actualiza el perfil del usuario autenticado
+  static async updateProfile(req: Request, res: Response) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "No autorizado" });
+    }
+    const idToken = authHeader.split(" ")[1];
+
+    try {
+      // Verificar el token y obtener el uid usando adminAuth importado
+      const decodedToken = await adminAuth.verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+      const updateData = req.body;
+      await update(uid, updateData);
+      res.status(200).json({ message: "Perfil actualizado correctamente" });
+    } catch (err: any) {
+      console.error("Error al actualizar el perfil:", err);
+      res.status(400).json({ error: err.message || "No se pudo actualizar el perfil" });
     }
   }
 }
